@@ -39,12 +39,28 @@ function triviaStartUp(from, text){
 
   	bot.addListener('message' + channel, playerJoin);
   	bot.addListener('message' + channel, startGame);
+
+
+//move this readFile
+/*
+		fs.readFile('./game_files/questions.txt', 'utf8', function (err,data) {
+  		if (err) {
+    		return console.log(err);
+  		}
+  		var lines = data.split('\n');
+  		var randLine = lines[Math.floor(Math.random()*lines.length)].split('`');
+  		var question = randLine[0];
+  		var answer = randLine[1];
+  		bot.say(channel, question);
+  		bot.addListener('message' + channel, tempAnsListen);
+			
+		}); */
 	} 
 }
 
 function playerJoin(from, text){
 
-	if(text.indexOf("!join") !== -1 && players.indexOf(from) === -1){
+	if(text.indexOf("!join") !== -1){
 		bot.say(channel, from + " has joined the game.");
 		players.push(from);
 		bot.say(channel, "Current players: " + players);
@@ -58,7 +74,6 @@ function startGame(from, text){
 		gameInProgress = true;
 
 		bot.say(channel, "Commencing game with players: " + players);
-		bot.removeListener('message' + channel, playerJoin);
 	}
 }
 
@@ -69,21 +84,3 @@ function tempAnsListen(from, text){
   	bot.removeListener('message' + channel, tempAnsListen);
   }
 }
-
-//move this readFile
-/*
-		fs.readFile('./game_files/questions.txt', 'utf8', function (err,data) {
-  		if (err) {
-    		return console.log(err);
-  		}
-
-  		var lines = data.split('\n');
-  		var randLine = lines[Math.floor(Math.random()*lines.length)].split('`');
-  		var question = randLine[0];
-  		var answer = randLine[1];
-
-  		bot.say(channel, question);
-
-  		bot.addListener('message' + channel, tempAnsListen);
-			
-		}); */
