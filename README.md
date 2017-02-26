@@ -6,9 +6,10 @@ Version 0.9!
 Trivia game function is up and running.
 
 Instructions:
-1. Set your server and channel info in server.js\s\s
-2. To start the game, type **!trivia**\s\s
+1. Set your server and channel info in server.js
+2. To start the game, type **!trivia**
 3. Play!
+
 
 Other commands: **!score**, **!stop**
 
