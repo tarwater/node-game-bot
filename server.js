@@ -5,13 +5,7 @@ var server = 'irc.dextroverse.org';
 var channel = '#shenanigans';
 
 exports.Bot = new irc.Client(server, botNick, {
-	channels: ["#shenanigans"],
+	channels: ["#shenanigans"]
 });
 
 exports.channel = channel;
-
-
-
-
-
-
