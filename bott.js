@@ -91,7 +91,7 @@ function newQuestion(){
             secondsPassed += 1;
 
             if (secondsPassed > 30) {
-                clearInterval(timer);e;
+                clearInterval(timer);
                 bot.say(channel, "Time's up! The answer was: " + answer);
 
                 newQuestion();
