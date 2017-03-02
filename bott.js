@@ -6,6 +6,7 @@ var players = {};
 var gameInProgress = false;
 var answer;
 var timer;
+var answeredCorrectly;
 
 //Permanent event listeners
 bot.addListener('message' + channel, function (from, text) {
@@ -64,46 +65,57 @@ function startGame(from, text) {
 
 function newQuestion(){
 
-    var secondsPassed = 0;
 
-    fs.readFile('./game_files/questions.txt', 'utf8', function (err, data) {
-        if (err) {
-            return console.log(err);
-        }
-        var lines = data.split('\n');
-        var randLine = lines[Math.floor(Math.random() * lines.length)].split('`');
-        var question = randLine[0];
-        answer = randLine[1];
-        bot.say(channel, question);
-        bot.addListener('message' + channel, tempAnsListen);
 
-    });
+    if(!questionInProgress) {
+        var secondsPassed = 0;
 
-    timer = setInterval(waitForAnswer, 1000);
+        fs.readFile('./game_files/questions.txt', 'utf8', function (err, data) {
+            if (err) {
+                return console.log(err);
+            }
 
-    function waitForAnswer() {
 
-        secondsPassed += 1;
+            var lines = data.split('\n');
+            var randLine = lines[Math.floor(Math.random() * lines.length)].split('`');
+            var question = randLine[0];
+            answer = randLine[1];
+            bot.say(channel, question);
+            answeredCorrectly = false;
+            bot.addListener('message' + channel, tempAnsListen);
 
-        if(secondsPassed > 30){
-            clearInterval(timer);
-            bot.say(channel, "Time's up! The answer was: " + answer);
-            newQuestion();
+
+        });
+
+        timer = setInterval(waitForAnswer, 1000);
+
+        function waitForAnswer() {
+
+            secondsPassed += 1;
+
+            if (secondsPassed > 30) {
+                clearInterval(timer);e;
+                bot.say(channel, "Time's up! The answer was: " + answer);
+                newQuestion();
+            }
         }
     }
 }
 
 function tempAnsListen(from, text) {
 
+    console.log("tempansOUTER");
+
     answer = answer.toLowerCase();
     text = text.toLowerCase();
 
-    if (text.indexOf(answer) !== -1) {
-
+    if (text.indexOf(answer) !== -1 && from !== "bott" && !answeredCorrectly) {
+        answeredCorrectly = true;
         bot.say(channel, answer + " is correct! " + from + " gets a point.");
+
         players[from] += 1;
-        //bot.removeListener('message' + channel, tempAnsListen);
-        questionInProgress = false;
+
+        bot.removeListener('message' + channel, tempAnsListen);
         clearInterval(timer);
         newQuestion();
     }
