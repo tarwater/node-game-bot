@@ -65,9 +65,6 @@ function startGame(from, text) {
 
 function newQuestion(){
 
-
-
-    if(!questionInProgress) {
         var secondsPassed = 0;
 
         fs.readFile('./game_files/questions.txt', 'utf8', function (err, data) {
@@ -96,9 +93,9 @@ function newQuestion(){
             if (secondsPassed > 30) {
                 clearInterval(timer);e;
                 bot.say(channel, "Time's up! The answer was: " + answer);
+
                 newQuestion();
             }
-        }
     }
 }
 
