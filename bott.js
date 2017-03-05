@@ -3,10 +3,10 @@ var bot = require('./server.js').Bot;
 var channel = require('./server.js').channel;
 
 var players = {};
-var gameInProgress = false;
+var gameInProgress;
 var answer;
 var timer;
-var answeredCorrectly;
+var alreadyAnswered;
 
 //Permanent event listeners
 bot.addListener('message' + channel, function (from, text) {
@@ -52,7 +52,7 @@ function startGame(from, text) {
 
     if (text.indexOf("!start") !== -1 && !gameInProgress) {
 
-        if(Object.keys(players).length > 0) {
+        if (Object.keys(players).length > 0) {
             gameInProgress = true;
 
             bot.say(channel, "Commencing game with players: " + Object.keys(players));
@@ -63,54 +63,57 @@ function startGame(from, text) {
     }
 }
 
-function newQuestion(){
+function newQuestion() {
 
-        var secondsPassed = 0;
+    var secondsPassed = 0;
 
-        fs.readFile('./game_files/questions.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
-
-
-            var lines = data.split('\n');
-            var randLine = lines[Math.floor(Math.random() * lines.length)].split('`');
-            var question = randLine[0];
-            answer = randLine[1];
-            bot.say(channel, question);
-            answeredCorrectly = false;
-            bot.addListener('message' + channel, tempAnsListen);
+    fs.readFile('./game_files/questions.txt', 'utf8', function (err, data) {
+        if (err) {
+            return console.log(err);
+        }
 
 
-        });
+        var lines = data.split('\n');
+        var randLine = lines[Math.floor(Math.random() * lines.length)].split('`');
+        var question = randLine[0];
+        answer = randLine[1];
+        bot.say(channel, question);
+        alreadyAnswered = false;
+        bot.addListener('message' + channel, tempAnsListen);
 
-        timer = setInterval(waitForAnswer, 1000);
 
-        function waitForAnswer() {
+    });
 
-            secondsPassed += 1;
+    timer = setInterval(waitForAnswer, 1000);
 
-            if (secondsPassed > 30) {
-                clearInterval(timer);
-                bot.say(channel, "Time's up! The answer was: " + answer);
+    function waitForAnswer() {
 
-                newQuestion();
-            }
+        secondsPassed += 1;
+
+        if (secondsPassed > 30) {
+            clearInterval(timer);
+            bot.say(channel, "Time's up! The answer was: " + answer);
+
+            newQuestion();
+        }
     }
 }
 
 function tempAnsListen(from, text) {
 
-    console.log("tempansOUTER");
-
     answer = answer.toLowerCase();
     text = text.toLowerCase();
 
-    if (text.indexOf(answer) !== -1 && from !== "bott" && !answeredCorrectly) {
-        answeredCorrectly = true;
+    if (text.indexOf(answer) !== -1 && from !== "bott" && !alreadyAnswered) {
+        alreadyAnswered = true;
         bot.say(channel, answer + " is correct! " + from + " gets a point.");
 
-        players[from] += 1;
+        if (players.hasOwnProperty(from)) { //is this player in the game?
+            players[from] += 1;
+        } else { //if not,
+            players[from] = 1; //add them
+            bot.say(channel, from + " has joined the game.");
+        }
 
         bot.removeListener('message' + channel, tempAnsListen);
         clearInterval(timer);
@@ -119,7 +122,7 @@ function tempAnsListen(from, text) {
 }
 
 function triviaEnd(from, text) {
-    if(text.indexOf("!stop") !== -1){
+    if (gameInProgress && text.indexOf("!stop") !== -1) {
         bot.say(channel, "Ending trivia game.");
         gameInProgress = false;
         clearInterval(timer);
@@ -127,18 +130,12 @@ function triviaEnd(from, text) {
     }
 }
 
-function scoreReport(from, text){
-    if(text.indexOf("!score") !== -1){
+function scoreReport(from, text) {
+    if (text.indexOf("!score") !== -1) {
         bot.say(channel, 'The current scores are: ');
 
-        for(player in players){
+        for (player in players) {
             bot.say(channel, player + ": " + players[player]);
         }
     }
 }
-
-
-
-
-
-
