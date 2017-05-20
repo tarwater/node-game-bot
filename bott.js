@@ -1,5 +1,5 @@
 fs = require('fs');
-const BOT = require('./server.js').bot;
+const BOT = require('./server.js').Bot;
 const CHANNEL = require('./server.js').channel;
 
 var players = {};
@@ -18,6 +18,7 @@ BOT.addListener('message' + CHANNEL, function(from, text) {
 
 BOT.addListener('pm', function(from, message) {
 
+  console.log("pm: " + from + ": " + message);
   BOT.say(from, "I'm a BOT. Ask bugg about me.");
 });
 
